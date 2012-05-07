@@ -1081,8 +1081,8 @@ module ActiveRecord
            WHERE owner      = '#{owner}'
              AND table_name = '#{desc_table_name}'
            ORDER BY column_id
-        SQL        
-
+        SQL
+        
         # added deletion of ignored columns
         select_all(table_cols, name).delete_if do |row|
           ignored_columns && ignored_columns.include?(row['name'].downcase)
