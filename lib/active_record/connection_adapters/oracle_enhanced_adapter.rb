@@ -307,13 +307,13 @@ module ActiveRecord
         :nls_dual_currency       => nil,
         :nls_iso_currency        => nil,
         :nls_language            => nil,
-        :nls_length_semantics    => 'CHAR',
+        #:nls_length_semantics    => 'CHAR',
         :nls_nchar_characterset  => nil,
         :nls_nchar_conv_excp     => nil,
         :nls_numeric_characters  => nil,
         :nls_sort                => nil,
         :nls_territory           => nil,
-        :nls_timestamp_format    => 'YYYY-MM-DD HH24:MI:SS:FF6',
+        #:nls_timestamp_format    => 'YYYY-MM-DD HH24:MI:SS:FF6',
         :nls_timestamp_tz_format => nil,
         :nls_time_format         => nil,
         :nls_time_tz_format      => nil
@@ -1069,20 +1069,19 @@ module ActiveRecord
         @@do_not_prefetch_primary_key[table_name] = nil
 
         table_cols = <<-SQL.strip.gsub(/\s+/, ' ')
-          SELECT column_name AS name, data_type AS sql_type, data_default, nullable, virtual_column, hidden_column,
+          SELECT column_name AS name, data_type AS sql_type, data_default, nullable, 'NO' as virtual_column, 'NO' as hidden_column,
                  DECODE(data_type, 'NUMBER', data_precision,
                                    'FLOAT', data_precision,
-                                   'VARCHAR2', DECODE(char_used, 'C', char_length, data_length),
-                                   'RAW', DECODE(char_used, 'C', char_length, data_length),
-                                   'CHAR', DECODE(char_used, 'C', char_length, data_length),
+                                   'VARCHAR2', data_length,
+                                   'RAW', data_length,
+                                   'CHAR', data_length,
                                     NULL) AS limit,
                  DECODE(data_type, 'NUMBER', data_scale, NULL) AS scale
-            FROM all_tab_cols#{db_link}
+            FROM all_tab_columns#{db_link}
            WHERE owner      = '#{owner}'
              AND table_name = '#{desc_table_name}'
-             AND hidden_column = 'NO'
            ORDER BY column_id
-        SQL
+        SQL        
 
         # added deletion of ignored columns
         select_all(table_cols, name).delete_if do |row|
